@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meal Planner — Health & Life</title>
+  <meta name="description" content="Plan your breakfast, lunch, dinner, and snacks for the entire week with our interactive weekly meal planner." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .mp-page { background: var(--cream); min-height: 100vh; }
+    .mp-week-tabs { display:flex; gap:.5rem; overflow-x:auto; padding:.5rem 0; margin-bottom:1.5rem; }
+    .mp-tab { padding:.5rem 1.1rem; border-radius:100px; border:2px solid var(--cream-dark); background:var(--white); cursor:pointer; font-weight:600; font-size:.85rem; white-space:nowrap; transition:var(--transition); }
+    .mp-tab.active { background:var(--green); color:var(--white); border-color:var(--green); }
+    .mp-tab:hover:not(.active) { border-color:var(--green-light); color:var(--green); }
+    .suggestion-chip { display:inline-flex; align-items:center; gap:.35rem; padding:.4rem .85rem; background:var(--green-pale); color:var(--green); border-radius:100px; font-size:.78rem; font-weight:600; margin:.2rem; cursor:pointer; border:none; transition:var(--transition); }
+    .suggestion-chip:hover { background:var(--green); color:var(--white); }
+    .mp-legend { display:flex; gap:1rem; flex-wrap:wrap; font-size:.8rem; align-items:center; margin-bottom:1.5rem; }
+    .mp-legend-dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:.3rem; }
+  </style>
+</head>
+<body class="mp-page">
+
+<!-- HEADER -->
+<header class="header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo">🌿 Health<span>&Life</span></a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="meal-planner.html" class="active">Meal Planner</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="index.html#recipes">Recipes</a>
+    </nav>
+    <button class="btn btn-brown btn-sm" onclick="clearAllMeals()">Clear All</button>
+  </div>
+</header>
+
+<!-- PAGE HEADER -->
+<div class="mp-header">
+  <div class="container">
+    <span class="section-label" style="background:rgba(255,255,255,.18);color:rgba(255,255,255,.9)">Weekly Planning</span>
+    <h1>Your Meal Planner 🗓️</h1>
+    <p>Click any cell to add a meal. Plan your entire week in minutes for healthier choices.</p>
+  </div>
+</div>
+
+<main class="section" style="padding-top:2rem">
+  <div class="container">
+
+    <!-- Week Nav -->
+    <div class="mp-week-nav">
+      <button class="mp-nav-btn" onclick="changeWeek(-1)" id="prevWeekBtn">←</button>
+      <span class="mp-week-label" id="weekLabel">This Week</span>
+      <button class="mp-nav-btn" onclick="changeWeek(1)" id="nextWeekBtn">→</button>
+    </div>
+
+    <!-- Legend -->
+    <div class="mp-legend">
+      <span><span class="mp-legend-dot" style="background:var(--green)"></span>Breakfast</span>
+      <span><span class="mp-legend-dot" style="background:var(--brown)"></span>Lunch</span>
+      <span><span class="mp-legend-dot" style="background:#3b82f6"></span>Dinner</span>
+      <span><span class="mp-legend-dot" style="background:#8b5cf6"></span>Snacks</span>
+      <span style="margin-left:auto;color:var(--text-light)">Click any cell to add or edit a meal</span>
+    </div>
+
+    <!-- Meal Grid -->
+    <div class="mp-grid" id="mealGrid"></div>
+
+    <!-- Weekly Summary -->
+    <div class="mp-summary-bar" id="weeklySummary">
+      <div class="mp-summary-card">
+        <div class="mp-summary-num" id="sumMeals">0</div>
+        <div class="mp-summary-lbl">Meals Planned</div>
+      </div>
+      <div class="mp-summary-card">
+        <div class="mp-summary-num" id="sumCals">0</div>
+        <div class="mp-summary-lbl">Total Calories</div>
+      </div>
+      <div class="mp-summary-card">
+        <div class="mp-summary-num" id="sumAvgCal">0</div>
+        <div class="mp-summary-lbl">Avg / Day (kcal)</div>
+      </div>
+      <div class="mp-summary-card">
+        <div class="mp-summary-num" id="sumComplete">0%</div>
+        <div class="mp-summary-lbl">Plan Complete</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MEAL MODAL -->
+<div class="modal-overlay" id="mealModal">
+  <div class="modal-box">
+    <h3 class="modal-title" id="modalTitle">Add Meal</h3>
+    <input class="modal-input" id="mealInput" type="text" placeholder="e.g. Greek yogurt with berries" />
+    <input class="modal-input" id="calInput" type="number" placeholder="Estimated calories (e.g. 320)" min="0" max="5000" />
+    <div style="margin:.4rem 0;font-size:.82rem;color:var(--text-light)">Quick suggestions:</div>
+    <div id="mealSuggestions"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveMeal()">Save Meal 💾</button>
+    </div>
+    <button style="position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;font-size:1.4rem;color:var(--text-light)" onclick="closeModal()">✕</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="index.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </a>
+  <a href="index.html#recipes" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+    Recipes
+  </a>
+  <a href="meal-planner.html" class="bottom-nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Planner
+  </a>
+  <a href="dashboard.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profile
+  </a>
+</nav>
+
+<script src="app.js"></script>
+<script>
+// =========================================================
+//  MEAL PLANNER — page logic
+// =========================================================
+const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const MEALS  = ['Breakfast','Lunch','Dinner','Snacks'];
+const MEAL_COLORS = ['var(--green)','var(--brown)','#3b82f6','#8b5cf6'];
+const MEAL_EMOJI  = ['🌅','☀️','🌙','🍎'];
+
+const SUGGESTIONS = {
+  Breakfast: ['Oatmeal & berries','Greek yogurt bowl','Avocado toast','Smoothie bowl','Eggs & toast','Granola & milk'],
+  Lunch:     ['Quinoa salad','Grilled chicken wrap','Veggie stir-fry','Lentil soup','Caesar salad','Tuna sandwich'],
+  Dinner:    ['Salmon & veggies','Pasta primavera','Chicken curry','Steak & potatoes','Veggie tacos','Stir-fry noodles'],
+  Snacks:    ['Apple & almond butter','Trail mix','Hummus & carrots','Rice cakes','Banana','Energy balls'],
+};
+
+let weekOffset = 0;
+let editCell = null;
+let meals = JSON.parse(localStorage.getItem('hl_meals_v2') || '{}');
+
+function getWeekDates(offset) {
+  const now = new Date('2026-03-31'); // Using provided date
+  const day = now.getDay(); // 0=Sun
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  return DAYS.map((_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+function cellKey(weekOff, dayIdx, mealIdx) {
+  const dates = getWeekDates(weekOff);
+  return `${dates[dayIdx].toISOString().slice(0,10)}_${mealIdx}`;
+}
+
+function buildGrid() {
+  const grid    = document.getElementById('mealGrid');
+  const weekLbl = document.getElementById('weekLabel');
+  const dates   = getWeekDates(weekOffset);
+  const today   = new Date('2026-03-31').toISOString().slice(0,10);
+
+  // Week label
+  const fmt = d => d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+  weekLbl.textContent = `${fmt(dates[0])} – ${fmt(dates[6])} ${weekOffset === 0 ? '(This Week)' : weekOffset === 1 ? '(Next Week)' : weekOffset === -1 ? '(Last Week)' : ''}`;
+
+  grid.innerHTML = '';
+
+  // Corner
+  const corner = document.createElement('div');
+  corner.style.cssText = 'background:transparent';
+  grid.appendChild(corner);
+
+  // Day headers
+  dates.forEach((d, i) => {
+    const isToday = d.toISOString().slice(0,10) === today;
+    const el = document.createElement('div');
+    el.className = 'mp-col-head' + (isToday ? ' today' : '');
+    el.innerHTML = `<div style="font-size:1.1rem">${DAYS[i]}</div><div style="opacity:.8;font-size:.75rem">${d.getDate()}/${d.getMonth()+1}</div>`;
+    grid.appendChild(el);
+  });
+
+  // Meal rows
+  MEALS.forEach((meal, mIdx) => {
+    const rowHead = document.createElement('div');
+    rowHead.className = 'mp-row-head';
+    rowHead.innerHTML = `<span style="font-size:1.3rem">${MEAL_EMOJI[mIdx]}</span><span>${meal}</span>`;
+    rowHead.style.borderLeft = `3px solid ${MEAL_COLORS[mIdx]}`;
+    grid.appendChild(rowHead);
+
+    dates.forEach((_, dIdx) => {
+      const key  = cellKey(weekOffset, dIdx, mIdx);
+      const data = meals[key];
+      const cell = document.createElement('div');
+      cell.className = 'mp-cell' + (data ? ' has-meal' : '');
+      if (data) {
+        cell.style.borderColor = MEAL_COLORS[mIdx] + '60';
+        cell.style.background  = MEAL_COLORS[mIdx] + '08';
+        cell.innerHTML = `
+          <div class="mp-cell-content">${data.name}</div>
+          ${data.cal ? `<div class="mp-cell-cal">🔥 ${data.cal} kcal</div>` : ''}
+          <button onclick="deleteCell(event,'${key}')" style="position:absolute;top:3px;right:4px;background:none;border:none;cursor:pointer;font-size:.8rem;color:var(--text-light);opacity:0;transition:.2s" class="cell-del-btn">✕</button>`;
+        cell.addEventListener('mouseenter', () => cell.querySelector('.cell-del-btn').style.opacity = '1');
+        cell.addEventListener('mouseleave', () => cell.querySelector('.cell-del-btn').style.opacity = '0');
+      } else {
+        cell.innerHTML = `<div class="mp-add-icon" style="color:${MEAL_COLORS[mIdx]}40">+</div>`;
+      }
+      cell.addEventListener('click', (e) => {
+        if (e.target.classList.contains('cell-del-btn')) return;
+        openModal(key, meal, mIdx, data);
+      });
+      grid.appendChild(cell);
+    });
+  });
+
+  updateSummary();
+}
+
+window.deleteCell = function(e, key) {
+  e.stopPropagation();
+  delete meals[key];
+  save();
+  buildGrid();
+};
+
+function openModal(key, mealType, mIdx, existing) {
+  editCell = { key, mIdx };
+  document.getElementById('modalTitle').textContent = (existing ? 'Edit' : 'Add') + ' ' + mealType;
+  document.getElementById('mealInput').value = existing ? existing.name : '';
+  document.getElementById('calInput').value  = existing ? (existing.cal || '') : '';
+  // Suggestions
+  const suggEl = document.getElementById('mealSuggestions');
+  suggEl.innerHTML = '';
+  SUGGESTIONS[mealType].forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'suggestion-chip';
+    btn.textContent = s;
+    btn.onclick = () => {
+      document.getElementById('mealInput').value = s;
+      document.getElementById('mealInput').focus();
+    };
+    suggEl.appendChild(btn);
+  });
+  const overlay = document.getElementById('mealModal');
+  overlay.classList.add('show');
+  overlay.style.position = 'fixed';
+  setTimeout(() => document.getElementById('mealInput').focus(), 100);
+}
+
+window.closeModal = function() {
+  document.getElementById('mealModal').classList.remove('show');
+  editCell = null;
+};
+
+window.saveMeal = function() {
+  const name = document.getElementById('mealInput').value.trim();
+  const cal  = parseInt(document.getElementById('calInput').value) || 0;
+  if (!name) { document.getElementById('mealInput').focus(); return; }
+  meals[editCell.key] = { name, cal };
+  save();
+  closeModal();
+  buildGrid();
+  showToast(`✅ ${name} added!`);
+};
+
+// Save/Enter keys
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter' && document.getElementById('mealModal').classList.contains('show')) saveMeal();
+});
+document.getElementById('mealModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+window.changeWeek = function(dir) {
+  weekOffset += dir;
+  buildGrid();
+};
+
+window.clearAllMeals = function() {
+  if (!confirm('Clear all meal plans? This cannot be undone.')) return;
+  meals = {};
+  save();
+  buildGrid();
+  showToast('Meal planner cleared.');
+};
+
+function save() { localStorage.setItem('hl_meals_v2', JSON.stringify(meals)); }
+
+function updateSummary() {
+  let count = 0, totalCal = 0;
+  const dates = getWeekDates(weekOffset);
+  const dayCals = {};
+  MEALS.forEach((_, mIdx) => {
+    dates.forEach((_, dIdx) => {
+      const key = cellKey(weekOffset, dIdx, mIdx);
+      const data = meals[key];
+      if (data) {
+        count++;
+        totalCal += data.cal || 0;
+        const dk = cellKey(weekOffset, dIdx, mIdx).slice(0,10);
+        dayCals[dk] = (dayCals[dk] || 0) + (data.cal || 0);
+      }
+    });
+  });
+  const totalCells = DAYS.length * MEALS.length;
+  document.getElementById('sumMeals').textContent    = count;
+  document.getElementById('sumCals').textContent     = totalCal.toLocaleString();
+  document.getElementById('sumAvgCal').textContent   = count > 0 ? Math.round(totalCal / 7) : 0;
+  document.getElementById('sumComplete').textContent = Math.round((count / totalCells) * 100) + '%';
+}
+
+// Init
+buildGrid();
+</script>
+</body>
+</html>

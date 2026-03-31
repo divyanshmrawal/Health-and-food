@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Health & Life</title>
+  <meta name="description" content="View your personal health progress dashboard — water intake, BMI, calories, and daily steps at a glance." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .dash-page { background: var(--cream); min-height: 100vh; }
+    .dash-section { padding: 2rem 0 5rem; }
+
+    /* Greeting avatar */
+    .dash-avatar {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--green-light), var(--green));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; color: var(--white);
+      border: 3px solid rgba(255,255,255,.4);
+    }
+    .dash-header-inner { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; }
+    .dash-quick-actions { display:flex; gap:.7rem; flex-wrap:wrap; margin-top:.5rem; }
+    .dash-quick-btn {
+      padding:.5rem 1.1rem; border-radius:100px;
+      background:rgba(255,255,255,.15); color:var(--white);
+      font-size:.82rem; font-weight:600; border:1px solid rgba(255,255,255,.3);
+      cursor:pointer; transition:var(--transition);
+    }
+    .dash-quick-btn:hover { background:rgba(255,255,255,.3); }
+
+    /* Mood ring row */
+    .mood-row { display:flex; gap:.6rem; margin-top:1.5rem; }
+    .mood-btn {
+      padding:.45rem 1rem; border-radius:100px; border:2px solid rgba(255,255,255,.3);
+      background:transparent; color:var(--white); font-size:.82rem; font-weight:600;
+      cursor:pointer; transition:var(--transition);
+    }
+    .mood-btn:hover,.mood-btn.selected { background:rgba(255,255,255,.25); border-color:var(--white); }
+
+    /* Tab row for dashboard sections */
+    .dash-tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto; padding:.3rem 0; }
+    .dash-tab {
+      padding:.5rem 1.2rem; border-radius:100px; border:2px solid var(--cream-dark);
+      background:var(--white); cursor:pointer; font-weight:600; font-size:.85rem;
+      white-space:nowrap; transition:var(--transition);
+    }
+    .dash-tab.active { background:var(--green); color:var(--white); border-color:var(--green); }
+    .dash-tab:hover:not(.active) { border-color:var(--green-light); color:var(--green); }
+
+    /* Mini bar chart */
+    .mini-bar-row { display:flex; align-items:flex-end; gap:4px; height:50px; margin-top:.8rem; }
+    .mini-bar { flex:1; border-radius:3px 3px 0 0; background:var(--green-pale); transition:height 1s ease; min-height:3px; }
+    .mini-bar.active { background:linear-gradient(to top, var(--green-light), var(--green)); }
+
+    /* Streak cards */
+    .streak-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1rem; margin-top:2rem; }
+    .streak-card { background:var(--white); border-radius:var(--radius-md); padding:1.2rem; text-align:center; box-shadow:var(--shadow-sm); }
+    .streak-num  { font-family:var(--font-display); font-size:2rem; font-weight:900; color:var(--green); }
+    .streak-lbl  { font-size:.8rem; color:var(--text-light); font-weight:600; margin-top:.2rem; }
+    .streak-icon { font-size:1.5rem; margin-bottom:.4rem; }
+
+    /* Daily log */
+    .log-scroll { max-height:280px; overflow-y:auto; padding-right:.5rem; }
+
+    /* Goals section */
+    .goals-list { display:flex; flex-direction:column; gap:.8rem; }
+    .goal-item { background:var(--cream); border-radius:var(--radius-sm); padding:1rem; }
+    .goal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.6rem; }
+    .goal-name { font-weight:600; font-size:.92rem; }
+    .goal-pct  { font-size:.82rem; font-weight:700; color:var(--green); }
+    .goal-bar-track { height:8px; background:var(--cream-dark); border-radius:4px; overflow:hidden; }
+    .goal-bar-fill  { height:100%; border-radius:4px; transition:width 1.2s ease; }
+  </style>
+</head>
+<body class="dash-page">
+
+<!-- HEADER -->
+<header class="header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo">🌿 Health<span>&Life</span></a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="meal-planner.html">Meal Planner</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="index.html#tips">Tips</a>
+    </nav>
+    <button class="btn btn-primary btn-sm" onclick="saveSnapshot()">Save Today 💾</button>
+  </div>
+</header>
+
+<!-- DASHBOARD HEADER -->
+<div class="dash-header">
+  <div class="container">
+    <div class="dash-header-inner">
+      <div>
+        <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.5rem">
+          <div class="dash-avatar">👤</div>
+          <div>
+            <div class="dash-greeting" id="greeting">Good morning!</div>
+            <h1 class="dash-header h1" style="color:var(--white);font-size:1.75rem;margin:0">Health Dashboard</h1>
+          </div>
+        </div>
+        <div class="dash-date" id="dashDate"></div>
+        <div class="mood-row" id="moodRow">
+          <span style="font-size:.85rem;opacity:.7;align-self:center">Feeling:</span>
+          <button class="mood-btn" onclick="setMood(this,'😊 Great')">😊 Great</button>
+          <button class="mood-btn" onclick="setMood(this,'😐 Okay')">😐 Okay</button>
+          <button class="mood-btn" onclick="setMood(this,'😔 Low')">😔 Low</button>
+          <button class="mood-btn" onclick="setMood(this,'⚡ Energized')">⚡ Energized</button>
+        </div>
+      </div>
+      <div class="dash-quick-actions">
+        <button class="dash-quick-btn" onclick="logWater()">💧 +1 Water</button>
+        <button class="dash-quick-btn" onclick="logSteps(500)">🚶 +500 Steps</button>
+        <button class="dash-quick-btn" onclick="showToast('Opening planner…');setTimeout(()=>location.href=\'meal-planner.html\',600)">🗓 Plan Meal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="dash-section">
+  <div class="container">
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="showTab('overview',this)">Overview</button>
+      <button class="dash-tab" onclick="showTab('goals',this)">Goals</button>
+      <button class="dash-tab" onclick="showTab('log',this)">Activity Log</button>
+      <button class="dash-tab" onclick="showTab('streaks',this)">Streaks</button>
+    </div>
+
+    <!-- TAB: OVERVIEW -->
+    <div id="tab-overview">
+      <div class="dash-grid">
+
+        <!-- Water Card -->
+        <div class="dash-card reveal">
+          <div class="dash-card-header">
+            <span class="dash-card-title">Water Intake</span>
+            <div class="dash-card-icon blue">💧</div>
+          </div>
+          <div class="progress-ring-wrap">
+            <div class="progress-ring">
+              <svg viewBox="0 0 110 110" width="110" height="110">
+                <circle cx="55" cy="55" r="50" class="ring-bg"/>
+                <circle cx="55" cy="55" r="50" class="ring-fill blue" id="waterRing" data-offset="0"/>
+              </svg>
+              <div class="ring-text">
+                <span class="ring-num" id="dashWaterCups" style="color:#3b82f6">0</span>
+                <span class="ring-unit">/ 8 cups</span>
+              </div>
+            </div>
+            <div class="ring-info">
+              <h3 id="dashWaterOz" style="color:#3b82f6">0 oz</h3>
+              <p class="ring-sub">Goal: 64 oz (8 cups)</p>
+              <span class="ring-change" id="waterStatus" style="color:#3b82f6">Keep hydrating! 💧</span>
+            </div>
+          </div>
+          <div class="mini-bar-row" id="waterBars"></div>
+        </div>
+
+        <!-- BMI Card -->
+        <div class="dash-card reveal">
+          <div class="dash-card-header">
+            <span class="dash-card-title">BMI Status</span>
+            <div class="dash-card-icon green">⚖️</div>
+          </div>
+          <div class="progress-ring-wrap">
+            <div class="progress-ring">
+              <svg viewBox="0 0 110 110" width="110" height="110">
+                <circle cx="55" cy="55" r="50" class="ring-bg"/>
+                <circle cx="55" cy="55" r="50" class="ring-fill green" id="bmiDashRing" data-offset="0"/>
+              </svg>
+              <div class="ring-text">
+                <span class="ring-num" id="dashBmiNum" style="color:var(--green)">—</span>
+                <span class="ring-unit">BMI</span>
+              </div>
+            </div>
+            <div class="ring-info">
+              <h3 id="dashBmiCat" style="color:var(--green)">Not set</h3>
+              <p class="ring-sub">Set your BMI on the <a href="index.html#bmi" style="color:var(--green);font-weight:700">home page</a></p>
+              <div style="display:flex;flex-direction:column;gap:.3rem;margin-top:.6rem">
+                <div style="display:flex;align-items:center;gap:.4rem;font-size:.78rem">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;display:inline-block"></span>Under 18.5
+                </div>
+                <div style="display:flex;align-items:center;gap:.4rem;font-size:.78rem">
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>18.5 – 24.9 Normal
+                </div>
+                <div style="display:flex;align-items:center;gap:.4rem;font-size:.78rem">
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--brown);display:inline-block"></span>25 – 29.9 Overweight
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Manual BMI entry -->
+          <div class="quick-add-row">
+            <input type="number" id="dashBmiInput" placeholder="Enter BMI (e.g. 22.4)" step="0.1" min="10" max="50"/>
+            <button class="btn btn-sm btn-primary" onclick="setDashBmi()">Set</button>
+          </div>
+        </div>
+
+        <!-- Calories Card -->
+        <div class="dash-card reveal">
+          <div class="dash-card-header">
+            <span class="dash-card-title">Calories Today</span>
+            <div class="dash-card-icon orange">🔥</div>
+          </div>
+          <div class="progress-ring-wrap">
+            <div class="progress-ring">
+              <svg viewBox="0 0 110 110" width="110" height="110">
+                <circle cx="55" cy="55" r="50" class="ring-bg"/>
+                <circle cx="55" cy="55" r="50" class="ring-fill orange" id="calDashRing" data-offset="314"/>
+              </svg>
+              <div class="ring-text">
+                <span class="ring-num" id="dashCal" style="color:var(--brown)">0</span>
+                <span class="ring-unit">kcal</span>
+              </div>
+            </div>
+            <div class="ring-info">
+              <h3 style="color:var(--brown)">Daily Goal</h3>
+              <p class="ring-sub">2,000 kcal target</p>
+              <span class="ring-change" id="calStatus" style="color:var(--brown)">Log food to track ↑</span>
+              <div class="mini-bar-row" id="calBars" style="margin-top:.5rem"></div>
+            </div>
+          </div>
+          <div class="quick-add-row">
+            <input type="number" id="dashCalInput" placeholder="Add calories manually" min="0" max="2000"/>
+            <button class="btn btn-sm btn-primary" onclick="addDashCal()">+ Add</button>
+          </div>
+        </div>
+
+        <!-- Steps Card -->
+        <div class="dash-card reveal">
+          <div class="dash-card-header">
+            <span class="dash-card-title">Steps Walked</span>
+            <div class="dash-card-icon purple">🚶</div>
+          </div>
+          <div class="progress-ring-wrap">
+            <div class="progress-ring">
+              <svg viewBox="0 0 110 110" width="110" height="110">
+                <circle cx="55" cy="55" r="50" class="ring-bg"/>
+                <circle cx="55" cy="55" r="50" class="ring-fill purple" id="stepsRing" data-offset="314"/>
+              </svg>
+              <div class="ring-text">
+                <span class="ring-num" id="dashSteps" style="color:#8b5cf6">0</span>
+                <span class="ring-unit">steps</span>
+              </div>
+            </div>
+            <div class="ring-info">
+              <h3 style="color:#8b5cf6">10,000 Goal</h3>
+              <p class="ring-sub" id="stepsKm">0.0 km walked</p>
+              <span class="ring-change" id="stepsStatus" style="color:#8b5cf6">Start walking! 🚶</span>
+            </div>
+          </div>
+          <div class="step-chart" id="stepChart"></div>
+          <div class="quick-add-row" style="margin-top:.6rem">
+            <input type="number" id="dashStepsInput" placeholder="Add steps (e.g. 1000)" min="0"/>
+            <button class="btn btn-sm btn-primary" onclick="addDashSteps()">+ Add</button>
+          </div>
+        </div>
+
+        <!-- Wide Activity Card -->
+        <div class="dash-card dash-card-wide reveal">
+          <div class="dash-card-header">
+            <span class="dash-card-title">Today's Activity Log</span>
+            <span id="logCount" style="font-size:.82rem;color:var(--text-light)">0 entries</span>
+          </div>
+          <div class="log-scroll">
+            <div class="activity-list" id="activityLog">
+              <div style="text-align:center;color:var(--text-light);padding:2rem;font-size:.9rem">
+                No activity logged yet. Use the quick buttons above to start! 💪
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end dash-grid -->
+    </div>
+
+    <!-- TAB: GOALS -->
+    <div id="tab-goals" style="display:none">
+      <div class="dash-card" style="max-width:680px">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Weekly Goals Progress</span>
+          <span class="tag">This Week</span>
+        </div>
+        <div class="goals-list" id="goalsList"></div>
+      </div>
+    </div>
+
+    <!-- TAB: LOG -->
+    <div id="tab-log" style="display:none">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Full Activity Log</span>
+          <button class="btn btn-sm btn-secondary" onclick="clearLog()">Clear Log</button>
+        </div>
+        <div class="activity-list" id="fullActivityLog" style="max-height:500px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- TAB: STREAKS -->
+    <div id="tab-streaks" style="display:none">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Your Health Streaks 🔥</span>
+        </div>
+        <div class="streak-grid" id="streakGrid"></div>
+        <p style="margin-top:1.5rem;font-size:.85rem;color:var(--text-light)">Keep completing daily goals to grow your streaks. Streaks reset at midnight if you miss a day!</p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="index.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </a>
+  <a href="index.html#recipes" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+    Recipes
+  </a>
+  <a href="meal-planner.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Planner
+  </a>
+  <a href="dashboard.html" class="bottom-nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profile
+  </a>
+</nav>
+
+<script src="app.js"></script>
+<script>
+// =========================================================
+//  DASHBOARD — page logic
+// =========================================================
+
+// State (persisted)
+let dash = JSON.parse(localStorage.getItem('hl_dash_v2') || '{}');
+let actLog = JSON.parse(localStorage.getItem('hl_actlog') || '[]');
+let streaks = JSON.parse(localStorage.getItem('hl_streaks') || '{"water":0,"steps":0,"cal":0,"meals":0}');
+
+const STEP_GOAL  = 10000;
+const CAL_GOAL   = 2000;
+const WATER_GOAL = 8;
+
+// --- GREETING & DATE ---
+(function() {
+  const now = new Date('2026-03-31T14:54:51');
+  const h = now.getHours();
+  const greetings = ['Good evening!','Good morning!','Good afternoon!','Good evening!'];
+  const phase = h < 5 ? 0 : h < 12 ? 1 : h < 18 ? 2 : 3;
+  document.getElementById('greeting').textContent = greetings[phase];
+  document.getElementById('dashDate').textContent =
+    now.toLocaleDateString('en-GB',{ weekday:'long', year:'numeric', month:'long', day:'numeric' });
+})();
+
+// --- TABS ---
+window.showTab = function(name, btn) {
+  ['overview','goals','log','streaks'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = 'none';
+  });
+  document.querySelector('#tab-'+name) && (document.getElementById('tab-'+name).style.display = '');
+  document.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (name === 'goals') renderGoals();
+  if (name === 'log')   renderFullLog();
+  if (name === 'streaks') renderStreaks();
+};
+
+// --- MOOD ---
+window.setMood = function(btn, mood) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  dash.mood = mood;
+  saveDash();
+  logActivity('😊', `Mood: ${mood}`, 'purple');
+  showToast('Mood logged: ' + mood);
+};
+
+// --- RING HELPERS ---
+function setRing(id, pct, color) {
+  const circ = 314;
+  const offset = circ - (circ * Math.min(pct, 1));
+  const ring = document.getElementById(id);
+  if (ring) { ring.style.strokeDashoffset = offset; ring.style.stroke = color; }
+}
+
+// --- WATER ---
+function loadWater() {
+  const cups = parseInt(localStorage.getItem('hl_water') || '0');
+  dash.water = cups;
+  const pct = cups / WATER_GOAL;
+  setRing('waterRing', pct, '#3b82f6');
+  document.getElementById('dashWaterCups').textContent = cups;
+  document.getElementById('dashWaterOz').textContent   = cups * 8 + ' oz';
+  const msgs = ['Start hydrating 💧','Good start!','Making progress!','Halfway there!','Almost done!','Almost there!','So close!','Just one more!','Goal reached! 🎉'];
+  document.getElementById('waterStatus').textContent = msgs[Math.min(cups, 8)];
+  renderMiniBar('waterBars', Array.from({length:7}, (_,i) => parseFloat(localStorage.getItem(`hl_water_d${i}`) || (Math.random()*.8+.2).toFixed(2))), '#3b82f6');
+}
+window.logWater = function() {
+  filledCups = parseInt(localStorage.getItem('hl_water') || '0');
+  if (filledCups < WATER_GOAL) {
+    filledCups++;
+    localStorage.setItem('hl_water', filledCups);
+    logActivity('💧', `Logged 1 cup of water (${filledCups}/${WATER_GOAL} today)`, 'blue');
+    showToast('💧 Water logged!');
+    loadWater();
+  } else {
+    showToast('🎉 Daily water goal reached!');
+  }
+};
+
+// --- BMI ---
+function loadBmi() {
+  const bmi = dash.bmi;
+  if (!bmi) return;
+  const pct = Math.min(bmi / 40, 1);
+  const colors = { 'Underweight':'#3b82f6', 'Healthy Weight':'var(--green)', 'Overweight':'var(--brown)', 'Obese':'#e63946' };
+  let cat = 'Underweight', color = '#3b82f6';
+  if (bmi >= 18.5) { cat = 'Healthy Weight'; color = 'var(--green)'; }
+  if (bmi >= 25)   { cat = 'Overweight'; color = 'var(--brown)'; }
+  if (bmi >= 30)   { cat = 'Obese'; color = '#e63946'; }
+  setRing('bmiDashRing', pct, color);
+  document.getElementById('dashBmiNum').textContent = bmi;
+  document.getElementById('dashBmiNum').style.color = color;
+  document.getElementById('dashBmiCat').textContent = cat;
+  document.getElementById('dashBmiCat').style.color = color;
+}
+window.setDashBmi = function() {
+  const v = parseFloat(document.getElementById('dashBmiInput').value);
+  if (!v || v < 10 || v > 60) { showToast('Please enter a valid BMI (10–60)'); return; }
+  dash.bmi = v;
+  saveDash();
+  loadBmi();
+  logActivity('⚖️', `BMI recorded: ${v}`, 'green');
+  showToast('BMI updated!');
+  document.getElementById('dashBmiInput').value = '';
+};
+
+// --- CALORIES ---
+function loadCal() {
+  const cal = dash.cal || 0;
+  const pct = cal / CAL_GOAL;
+  setRing('calDashRing', pct, 'var(--brown)');
+  document.getElementById('dashCal').textContent = cal.toLocaleString();
+  const remaining = Math.max(0, CAL_GOAL - cal);
+  const statuses = cal < 500 ? 'Start logging meals 🍽️' : cal < 1200 ? 'Light intake today' : cal < 1800 ? 'On track! 👍' : cal < CAL_GOAL ? 'Almost at goal!' : 'Daily goal reached! 🔥';
+  document.getElementById('calStatus').textContent = statuses;
+  renderMiniBar('calBars', Array.from({length:5}, (_,i) => parseFloat(localStorage.getItem(`hl_cal_d${i}`) || (Math.random()*.7+.3).toFixed(2))), 'var(--brown)');
+}
+window.addDashCal = function() {
+  const v = parseInt(document.getElementById('dashCalInput').value);
+  if (!v || v <= 0) return;
+  dash.cal = (dash.cal || 0) + v;
+  saveDash(); loadCal();
+  logActivity('🔥', `Logged ${v} kcal (Total: ${dash.cal} kcal today)`, 'orange');
+  showToast(`🔥 ${v} kcal logged!`);
+  document.getElementById('dashCalInput').value = '';
+};
+
+// --- STEPS ---
+function loadSteps() {
+  const steps = dash.steps || 0;
+  const pct   = steps / STEP_GOAL;
+  setRing('stepsRing', pct, '#8b5cf6');
+  document.getElementById('dashSteps').textContent = steps.toLocaleString();
+  document.getElementById('stepsKm').textContent   = (steps * 0.000762).toFixed(2) + ' km walked';
+  const statuses = steps < 2000 ? 'Start walking! 🚶' : steps < 5000 ? 'Good progress! 💪' : steps < 8000 ? "You're crushing it! 🔥" : steps < STEP_GOAL ? 'Almost there! 🏁' : 'Goal achieved! 🏆';
+  document.getElementById('stepsStatus').textContent = statuses;
+  buildStepChart();
+}
+window.addDashSteps = function() {
+  const v = parseInt(document.getElementById('dashStepsInput').value);
+  if (!v || v <= 0) return;
+  dash.steps = (dash.steps || 0) + v;
+  saveDash(); loadSteps();
+  logActivity('🚶', `Walked ${v.toLocaleString()} steps (Total: ${(dash.steps).toLocaleString()} today)`, 'purple');
+  showToast(`🚶 ${v.toLocaleString()} steps logged!`);
+  document.getElementById('dashStepsInput').value = '';
+};
+window.logSteps = function(n) {
+  dash.steps = (dash.steps || 0) + n;
+  saveDash(); loadSteps();
+  logActivity('🚶', `Quick-logged ${n} steps`, 'purple');
+  showToast(`🚶 +${n} steps logged!`);
+};
+
+function buildStepChart() {
+  const chart = document.getElementById('stepChart');
+  if (!chart) return;
+  const days = ['M','T','W','T','F','S','S'];
+  const values = days.map((_, i) => {
+    if (i === 1) return dash.steps || 0; // simulate today = Tue (index 1)
+    return Math.floor(Math.random() * 9000 + 1000);
+  });
+  const max = Math.max(...values, STEP_GOAL);
+  chart.innerHTML = '';
+  days.forEach((d, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'step-bar-wrap';
+    const pct = (values[i] / max) * 100;
+    const isToday = i === 1;
+    wrap.innerHTML = `
+      <div class="step-bar${isToday?' today':''}" style="height:${pct}%" title="${values[i].toLocaleString()} steps"></div>
+      <span class="step-day">${d}</span>`;
+    chart.appendChild(wrap);
+  });
+}
+
+// --- MINI BAR ---
+function renderMiniBar(containerId, values, color) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const max = Math.max(...values, 0.1);
+  el.innerHTML = '';
+  values.forEach((v, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'mini-bar' + (i === values.length - 1 ? ' active' : '');
+    bar.style.height = `${Math.round((v / max) * 100)}%`;
+    bar.style.background = i === values.length - 1 ? color : '';
+    el.appendChild(bar);
+  });
+}
+
+// --- ACTIVITY LOG ---
+const dotColors = { green:'var(--green)', blue:'#3b82f6', orange:'var(--brown)', purple:'#8b5cf6' };
+function logActivity(icon, text, color) {
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+  actLog.unshift({ icon, text, color, time });
+  if (actLog.length > 50) actLog.pop();
+  localStorage.setItem('hl_actlog', JSON.stringify(actLog));
+  renderLog();
+}
+function renderLog() {
+  const el = document.getElementById('activityLog');
+  const cnt = document.getElementById('logCount');
+  if (!el) return;
+  if (actLog.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:2rem;font-size:.9rem">No activity logged yet 💪</div>';
+    if (cnt) cnt.textContent = '0 entries';
+    return;
+  }
+  if (cnt) cnt.textContent = actLog.length + ' entries';
+  el.innerHTML = actLog.slice(0, 8).map(e => `
+    <div class="activity-item">
+      <div class="activity-dot ${e.color}" style="background:${dotColors[e.color]||'var(--green)'}"></div>
+      <span style="font-size:.88rem">${e.icon} ${e.text}</span>
+      <span class="activity-time">${e.time}</span>
+    </div>`).join('');
+}
+function renderFullLog() {
+  const el = document.getElementById('fullActivityLog');
+  if (!el) return;
+  if (actLog.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:3rem">No activity recorded yet. Start using the tracker!</div>';
+    return;
+  }
+  el.innerHTML = actLog.map(e => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${dotColors[e.color]||'var(--green)'}"></div>
+      <span style="font-size:.88rem">${e.icon} ${e.text}</span>
+      <span class="activity-time">${e.time}</span>
+    </div>`).join('');
+}
+window.clearLog = function() {
+  if (!confirm('Clear all activity log entries?')) return;
+  actLog = [];
+  localStorage.setItem('hl_actlog', '[]');
+  renderLog(); renderFullLog();
+  showToast('Activity log cleared.');
+};
+
+// --- GOALS ---
+const GOAL_DATA = [
+  { label:'Daily Hydration', emoji:'💧', key:'water', max:WATER_GOAL, color:'#3b82f6', suffix:' cups' },
+  { label:'Calorie Goal',   emoji:'🔥', key:'cal',   max:CAL_GOAL,   color:'var(--brown)', suffix:' kcal' },
+  { label:'Step Goal',      emoji:'🚶', key:'steps', max:STEP_GOAL,  color:'#8b5cf6', suffix:' steps' },
+];
+function renderGoals() {
+  const el = document.getElementById('goalsList');
+  if (!el) return;
+  el.innerHTML = GOAL_DATA.map(g => {
+    const val = g.key === 'water' ? parseInt(localStorage.getItem('hl_water')||'0') : (dash[g.key] || 0);
+    const pct = Math.min(Math.round((val / g.max) * 100), 100);
+    return `
+      <div class="goal-item">
+        <div class="goal-header">
+          <span class="goal-name">${g.emoji} ${g.label}</span>
+          <span class="goal-pct" style="color:${g.color}">${pct}%</span>
+        </div>
+        <div style="font-size:.82rem;color:var(--text-light);margin-bottom:.5rem">${val.toLocaleString()} / ${g.max.toLocaleString()}${g.suffix}</div>
+        <div class="goal-bar-track">
+          <div class="goal-bar-fill" style="width:${pct}%;background:${g.color}"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// --- STREAKS ---
+function renderStreaks() {
+  const el = document.getElementById('streakGrid');
+  if (!el) return;
+  const streak_data = [
+    { icon:'💧', label:'Hydration Streak', key:'water', color:'#3b82f6' },
+    { icon:'🚶', label:'Steps Streak',     key:'steps', color:'#8b5cf6' },
+    { icon:'🔥', label:'Calorie Streak',   key:'cal',   color:'var(--brown)' },
+    { icon:'🥗', label:'Meal Plan Streak', key:'meals', color:'var(--green)' },
+  ];
+  el.innerHTML = streak_data.map(s => `
+    <div class="streak-card">
+      <div class="streak-icon">${s.icon}</div>
+      <div class="streak-num" style="color:${s.color}">${streaks[s.key] || 0}</div>
+      <div class="streak-lbl">${s.label}</div>
+    </div>`).join('');
+}
+
+// --- SAVE / SNAPSHOT ---
+function saveDash() { localStorage.setItem('hl_dash_v2', JSON.stringify(dash)); }
+window.saveSnapshot = function() {
+  saveDash();
+  logActivity('💾', 'Daily snapshot saved', 'green');
+  showToast('✅ Progress saved!');
+};
+
+// --- INIT ---
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    loadWater(); loadBmi(); loadCal(); loadSteps(); renderLog();
+  }, 300);
+});
+</script>
+</body>
+</html>

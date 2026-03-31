@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health & Life — Live Healthy, Live Happy</title>
+  <meta name="description" content="Your ultimate wellness companion — track nutrition, plan meals, monitor BMI, and achieve your health goals with Health & Life." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ======================== HEADER ======================== -->
+<header class="header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo">🌿 Health<span>&Life</span></a>
+    <nav class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="meal-planner.html">Meal Planner</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="#recipes">Recipes</a>
+      <a href="#tips">Tips</a>
+    </nav>
+    <a href="meal-planner.html" class="btn btn-primary btn-sm">Get Started</a>
+  </div>
+</header>
+
+<!-- ======================== HERO ======================== -->
+<main>
+<section class="section hero container">
+  <div class="hero-content">
+    <div class="hero-badge">✨ Your Wellness Journey Starts Here</div>
+    <h1 class="hero-title">Eat Well,<br><em>Live Well.</em></h1>
+    <p class="hero-desc">Track nutrition, plan meals, monitor your BMI, and build healthy habits — all in one beautifully designed app.</p>
+    <div class="hero-cta">
+      <a href="meal-planner.html" class="btn btn-primary">Plan My Meals 🥗</a>
+      <a href="dashboard.html" class="btn btn-secondary">View Dashboard</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">40+</div>
+        <div class="hero-stat-label">Food Tracked</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">7</div>
+        <div class="hero-stat-label">Day Planning</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-label">Free to Use</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-blob">🥗</div>
+    <div class="hero-pill" style="top:8%;right:-5%">🔥 324 kcal burned</div>
+    <div class="hero-pill" style="bottom:18%;left:-8%">💧 6/8 cups today</div>
+    <div class="hero-pill" style="top:52%;right:-6%">💪 BMI: 22.1</div>
+  </div>
+</section>
+
+<!-- ======================== FEATURES ======================== -->
+<section class="section" id="features" style="background:var(--white)">
+  <div class="container">
+    <div class="text-center mb-2">
+      <span class="section-label">Why Health & Life</span>
+      <h2 class="section-title">Everything You Need to Thrive</h2>
+      <p class="section-sub">A complete wellness toolkit designed to keep you motivated, informed, and on track every single day.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">🥗</div>
+        <h3>Meal Planning</h3>
+        <p>Plan your weekly meals with a clean, drag-friendly grid across breakfast, lunch, dinner, and snacks.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🔥</div>
+        <h3>Calorie Tracking</h3>
+        <p>Search 40+ foods and instantly see calories, protein, and carbs. Track your daily intake visually.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">📊</div>
+        <h3>Progress Dashboard</h3>
+        <p>Beautiful circular progress rings show your water, steps, BMI, and calories at a glance.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">💧</div>
+        <h3>Water Tracker</h3>
+        <p>Stay hydrated with our fun cup-by-cup water tracker that saves your progress automatically.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">⚖️</div>
+        <h3>BMI Calculator</h3>
+        <p>Get instant BMI results with personalized health advice and visual ring indicator.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🍽️</div>
+        <h3>Healthy Recipes</h3>
+        <p>Explore curated, nutritionist-approved recipes tailored to your dietary preferences.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== BMI CALCULATOR ======================== -->
+<section class="section bmi-section" id="bmi">
+  <div class="container">
+    <div class="bmi-wrapper">
+      <div>
+        <span class="section-label">Body Mass Index</span>
+        <h2 class="section-title">Calculate Your BMI</h2>
+        <p style="margin-bottom:2rem">Understand your body composition and get personalised advice to reach your ideal weight.</p>
+        <form class="bmi-form" id="bmiForm">
+          <div class="form-group">
+            <label for="unit">Measurement Unit</label>
+            <select id="unit">
+              <option value="metric">Metric (kg, cm)</option>
+              <option value="imperial">Imperial (lbs, in)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="weight">Weight (kg)</label>
+              <input type="number" id="weight" placeholder="70" min="1" max="500" required />
+            </div>
+            <div class="form-group">
+              <label for="height">Height (cm)</label>
+              <input type="number" id="height" placeholder="175" min="1" max="300" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Calculate BMI ⚖️</button>
+        </form>
+      </div>
+      <div>
+        <div class="bmi-result" id="bmiResult">
+          <div class="bmi-ring-wrap">
+            <svg viewBox="0 0 160 160" width="160" height="160">
+              <circle cx="80" cy="80" r="70" fill="none" stroke="var(--cream-dark)" stroke-width="12"/>
+              <circle cx="80" cy="80" r="70" class="bmi-ring-progress" id="bmiRingProgress"/>
+            </svg>
+            <div class="bmi-value">
+              <span class="bmi-num" id="bmiNum">--</span>
+              <span class="bmi-label">BMI</span>
+            </div>
+          </div>
+          <h3 class="bmi-category" id="bmiCategory">—</h3>
+          <p class="bmi-advice" id="bmiAdvice"></p>
+        </div>
+        <div style="background:var(--cream);border-radius:var(--radius-md);padding:1.5rem;margin-top:1rem" id="bmiPlaceholder">
+          <p style="text-align:center;color:var(--text-light);font-size:.9rem">Enter your details and click <strong style="color:var(--green)">Calculate BMI</strong> to see your results here.</p>
+          <div style="display:flex;flex-direction:column;gap:.7rem;margin-top:1.5rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .9rem;background:var(--white);border-radius:var(--radius-sm);font-size:.85rem">
+              <span>Underweight</span><span style="color:#3b82f6;font-weight:700">&lt; 18.5</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .9rem;background:var(--green-pale);border-radius:var(--radius-sm);font-size:.85rem">
+              <span>Normal weight</span><span style="color:var(--green);font-weight:700">18.5 – 24.9</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .9rem;background:var(--white);border-radius:var(--radius-sm);font-size:.85rem">
+              <span>Overweight</span><span style="color:var(--brown);font-weight:700">25 – 29.9</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .9rem;background:var(--white);border-radius:var(--radius-sm);font-size:.85rem">
+              <span>Obese</span><span style="color:var(--red);font-weight:700">≥ 30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== CALORIE COUNTER ======================== -->
+<section class="section calorie-section" id="calories">
+  <div class="container">
+    <div class="text-center mb-2">
+      <span class="section-label">Nutrition Tracker</span>
+      <h2 class="section-title">Count Your Calories</h2>
+      <p class="section-sub">Search any food to see its calorie count and add it to your daily tracker in real time.</p>
+    </div>
+    <div class="calorie-inner">
+      <div class="calorie-search-box">
+        <div class="calorie-input-row">
+          <input type="text" id="calorieInput" placeholder="Search food… e.g. apple, chicken, rice" />
+          <button class="btn btn-primary" id="calorieSearchBtn">Search 🔍</button>
+        </div>
+        <div class="calorie-results" id="calorieResults">
+          <div class="calorie-no-result">Start typing a food name above to see calories 👆</div>
+        </div>
+      </div>
+      <div class="calorie-tracker-box">
+        <h3 style="color:rgba(255,255,255,.9);margin-bottom:1.2rem;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Today's Intake</h3>
+        <div class="calorie-ring-wrap">
+          <svg viewBox="0 0 160 160" width="160" height="160">
+            <circle cx="80" cy="80" r="70" class="cal-ring-bg"/>
+            <circle cx="80" cy="80" r="70" class="cal-ring-fill" id="calRingFill"/>
+          </svg>
+          <div class="calorie-center">
+            <div class="calorie-center-num" id="calConsumed">0</div>
+            <div class="calorie-center-label">of 2000 kcal</div>
+          </div>
+        </div>
+        <div class="calorie-stats">
+          <div class="calorie-stat-item">
+            <div class="calorie-stat-num">2000</div>
+            <div class="calorie-stat-lbl">Goal</div>
+          </div>
+          <div class="calorie-stat-item">
+            <div class="calorie-stat-num" id="calRemaining">2000</div>
+            <div class="calorie-stat-lbl">Remaining</div>
+          </div>
+        </div>
+        <button class="btn btn-sm" style="margin-top:1.5rem;background:rgba(255,255,255,.15);color:var(--white);border:1px solid rgba(255,255,255,.3);border-radius:100px;padding:.6rem 1.4rem" onclick="resetCalories()">Reset Today</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== RECIPE CARDS ======================== -->
+<section class="section recipes-section" id="recipes">
+  <div class="container">
+    <div class="text-center mb-2">
+      <span class="section-label">Healthy Eating</span>
+      <h2 class="section-title">Featured Recipes</h2>
+      <p class="section-sub">Nutritionist-approved meals that are as delicious as they are good for you.</p>
+    </div>
+    <div class="recipe-grid">
+      <div class="recipe-card reveal">
+        <div class="recipe-img">🥗</div>
+        <div class="recipe-body">
+          <div class="recipe-tags">
+            <span class="recipe-tag">Vegan</span>
+            <span class="recipe-tag quick">Quick</span>
+          </div>
+          <h3 class="recipe-title">Mediterranean Quinoa Bowl</h3>
+          <p style="font-size:.88rem">Fluffy quinoa tossed with roasted veggies, feta, olives, and a lemon-herb dressing.</p>
+          <div class="recipe-meta">
+            <span>⏱ 20 min</span>
+            <span>🔥 380 kcal</span>
+            <span>👍 4.9★</span>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card reveal">
+        <div class="recipe-img" style="background:linear-gradient(135deg,#fff0d4,#f8d49a)">🍳</div>
+        <div class="recipe-body">
+          <div class="recipe-tags">
+            <span class="recipe-tag">High Protein</span>
+          </div>
+          <h3 class="recipe-title">Avocado Egg Power Bowl</h3>
+          <p style="font-size:.88rem">Poached eggs on creamy avocado, with microgreens, cherry tomatoes and tahini drizzle.</p>
+          <div class="recipe-meta">
+            <span>⏱ 15 min</span>
+            <span>🔥 310 kcal</span>
+            <span>👍 4.8★</span>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card reveal">
+        <div class="recipe-img" style="background:linear-gradient(135deg,#e8f5e9,#a5d6a7)">🍓</div>
+        <div class="recipe-body">
+          <div class="recipe-tags">
+            <span class="recipe-tag vegan">Vegan</span>
+            <span class="recipe-tag quick">Quick</span>
+          </div>
+          <h3 class="recipe-title">Green Detox Smoothie</h3>
+          <p style="font-size:.88rem">Spinach, banana, almond milk, chia seeds, and a hint of ginger for the perfect morning boost.</p>
+          <div class="recipe-meta">
+            <span>⏱ 5 min</span>
+            <span>🔥 185 kcal</span>
+            <span>👍 4.7★</span>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card reveal">
+        <div class="recipe-img" style="background:linear-gradient(135deg,#fce4ec,#f48fb1)">🐟</div>
+        <div class="recipe-body">
+          <div class="recipe-tags">
+            <span class="recipe-tag">Omega-3</span>
+            <span class="recipe-tag">Low Carb</span>
+          </div>
+          <h3 class="recipe-title">Herb-Crusted Salmon</h3>
+          <p style="font-size:.88rem">Baked salmon fillet with a crunchy herb crust served alongside roasted asparagus.</p>
+          <div class="recipe-meta">
+            <span>⏱ 25 min</span>
+            <span>🔥 420 kcal</span>
+            <span>👍 4.9★</span>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card reveal">
+        <div class="recipe-img" style="background:linear-gradient(135deg,#e8eaf6,#9fa8da)">🫘</div>
+        <div class="recipe-body">
+          <div class="recipe-tags">
+            <span class="recipe-tag vegan">Vegan</span>
+            <span class="recipe-tag">Fiber-Rich</span>
+          </div>
+          <h3 class="recipe-title">Black Bean Tacos</h3>
+          <p style="font-size:.88rem">Crispy corn tortillas loaded with spiced black beans, mango salsa, and lime crema.</p>
+          <div class="recipe-meta">
+            <span>⏱ 20 min</span>
+            <span>🔥 295 kcal</span>
+            <span>👍 4.6★</span>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card reveal">
+        <div class="recipe-img" style="background:linear-gradient(135deg,#fff8e1,#ffe082)">🍚</div>
+        <div class="recipe-body">
+          <div class="recipe-tags">
+            <span class="recipe-tag">Balanced</span>
+          </div>
+          <h3 class="recipe-title">Golden Turmeric Kitchari</h3>
+          <p style="font-size:.88rem">Nourishing Ayurvedic lentil & rice dish with warming spices — a complete, gut-healing meal.</p>
+          <div class="recipe-meta">
+            <span>⏱ 30 min</span>
+            <span>🔥 340 kcal</span>
+            <span>👍 4.7★</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-3">
+      <a href="meal-planner.html" class="btn btn-secondary">View All Recipes →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== HEALTH TIPS ======================== -->
+<section class="section tips-section" id="tips">
+  <div class="container">
+    <div class="text-center mb-2">
+      <span class="section-label">Daily Wisdom</span>
+      <h2 class="section-title">Health Tips for You</h2>
+      <p class="section-sub">Simple, science-backed habits that compound into major transformations over time.</p>
+    </div>
+    <div class="tips-grid">
+      <div class="tip-card reveal">
+        <div class="tip-emoji">🌅</div>
+        <h3>Morning Ritual</h3>
+        <p>Drink 500ml of water within 30 minutes of waking to kickstart your metabolism and flush toxins.</p>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-emoji">🥦</div>
+        <h3>Eat the Rainbow</h3>
+        <p>Aim for five different-coloured vegetables daily to ensure a wide range of micronutrients and antioxidants.</p>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-emoji">🧘</div>
+        <h3>Mindful Eating</h3>
+        <p>Chew each bite 20 times and put your fork down between bites. This improves digestion and reduces overeating.</p>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-emoji">😴</div>
+        <h3>Prioritize Sleep</h3>
+        <p>7–9 hours of quality sleep regulates hunger hormones (ghrelin & leptin) — key players in weight management.</p>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-emoji">🚶</div>
+        <h3>Move Regularly</h3>
+        <p>Even a 10-minute walk after each meal can significantly lower blood sugar and improve cardiovascular health.</p>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-emoji">🧠</div>
+        <h3>Reduce Stress</h3>
+        <p>Chronic stress raises cortisol, which increases cravings for sugar and fat. Try 5 minutes of deep breathing daily.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== WATER TRACKER ======================== -->
+<section class="water-section" id="water">
+  <div class="container water-inner">
+    <div class="water-text reveal">
+      <span class="section-label" style="background:rgba(255,255,255,.2);color:rgba(255,255,255,.9)">Hydration</span>
+      <h2>Stay Hydrated Today 💧</h2>
+      <p style="color:rgba(255,255,255,.75);margin-bottom:1.5rem">Water is essential for every bodily function. The recommended daily intake is 8 cups (64 oz). Track each glass here.</p>
+      <div style="display:flex;flex-direction:column;gap:.8rem">
+        <div style="display:flex;align-items:center;gap:.8rem;color:rgba(255,255,255,.8);font-size:.9rem">
+          <span style="font-size:1.4rem">⚡</span>Boosts energy and brain function
+        </div>
+        <div style="display:flex;align-items:center;gap:.8rem;color:rgba(255,255,255,.8);font-size:.9rem">
+          <span style="font-size:1.4rem">✨</span>Improves skin clarity and glow
+        </div>
+        <div style="display:flex;align-items:center;gap:.8rem;color:rgba(255,255,255,.8);font-size:.9rem">
+          <span style="font-size:1.4rem">🔥</span>Supports metabolism and weight loss
+        </div>
+      </div>
+    </div>
+    <div class="water-widget reveal">
+      <div class="water-cup-display">
+        <div class="water-glass">
+          <div class="water-fill" id="waterFill" style="height:0%"></div>
+        </div>
+        <div class="water-info">
+          <div class="water-oz"><span id="waterOz">0</span> oz</div>
+          <div class="water-goal">of 64 oz daily goal</div>
+          <div style="margin-top:.6rem;font-size:.85rem;color:rgba(255,255,255,.7)" id="waterMsg">Keep going, you got this! 💪</div>
+        </div>
+      </div>
+      <div class="water-cups" id="waterCups"></div>
+      <div class="water-actions">
+        <button class="water-btn water-btn-add" onclick="addWater()">+ Add Cup 💧</button>
+        <button class="water-btn water-btn-reset" onclick="resetWater()">Reset</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== NEWSLETTER ======================== -->
+<section class="section newsletter-section" id="newsletter">
+  <div class="container">
+    <div class="newsletter-box">
+      <div class="newsletter-icon">📧</div>
+      <span class="section-label">Stay Updated</span>
+      <h2 class="section-title" style="margin-top:.3rem">Get Healthy Tips Weekly</h2>
+      <p>Join 10,000+ health enthusiasts receiving our curated nutrition advice, new recipes, and wellness insights every Tuesday.</p>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" placeholder="Enter your email address" required />
+        <button type="submit" class="btn btn-primary">Subscribe 🌿</button>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ======================== FOOTER ======================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">🌿 Health<span>&amp;Life</span></div>
+        <p class="footer-desc">Your daily companion for a healthier, happier you. Track, plan, and thrive with science-backed wellness tools.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Features</h4>
+        <a href="#bmi">BMI Calculator</a>
+        <a href="#calories">Calorie Counter</a>
+        <a href="#water">Water Tracker</a>
+        <a href="meal-planner.html">Meal Planner</a>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="#recipes">Recipes</a>
+        <a href="#tips">Health Tips</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#newsletter">Newsletter</a>
+      </div>
+      <div class="footer-col">
+        <h4>About</h4>
+        <a href="#">Our Mission</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Contact Us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Health & Life. All rights reserved.</span>
+      <span>Made with 💚 for your well-being</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ======================== BOTTOM NAV ======================== -->
+<nav class="bottom-nav" id="bottomNav">
+  <a href="index.html" class="bottom-nav-item active" id="bnHome">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    Home
+  </a>
+  <a href="#recipes" class="bottom-nav-item" id="bnRecipes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+    </svg>
+    Recipes
+  </a>
+  <a href="meal-planner.html" class="bottom-nav-item" id="bnTracker">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    Planner
+  </a>
+  <a href="dashboard.html" class="bottom-nav-item" id="bnProfile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+    Profile
+  </a>
+</nav>
+
+<script src="app.js"></script>
+<script>
+  // Remaining calories reactive update
+  const calRemainingEl = document.getElementById('calRemaining');
+  const origAddCalorie = window.addCalorie;
+  window.addCalorie = function(cal) {
+    origAddCalorie(cal);
+    if (calRemainingEl) calRemainingEl.textContent = Math.max(0, 2000 - (parseInt(document.getElementById('calConsumed').textContent) || 0));
+  };
+  window.resetCalories = function() {
+    totalCal = 0;
+    if (typeof updateCalRing === 'function') updateCalRing();
+    if (calRemainingEl) calRemainingEl.textContent = 2000;
+    if (typeof showToast === 'function') showToast('Calorie log reset!');
+  };
+
+  // Hide BMI placeholder when result shows
+  document.getElementById('bmiForm') && document.getElementById('bmiForm').addEventListener('submit', () => {
+    setTimeout(() => {
+      const p = document.getElementById('bmiPlaceholder');
+      if (p) p.style.display = 'none';
+    }, 100);
+  });
+
+  // Water message update
+  const waterOzEl2 = document.getElementById('waterOz');
+  const waterMsgEl = document.getElementById('waterMsg');
+  const origRenderWater = window.renderWater;
+  // Patch renderWater to also update message
+  const waterMessages = [
+    'Drink up! Hydration is key 💧',
+    'Good start! Keep it flowing 🌊',
+    'Halfway there! Amazing progress 💪',
+    "Almost there! You're crushing it 🔥",
+    '🎉 Daily goal achieved! You rock!'
+  ];
+  setInterval(() => {
+    const cups = parseInt(localStorage.getItem('hl_water') || '0');
+    if (waterMsgEl) {
+      const idx = Math.min(Math.floor((cups / 8) * (waterMessages.length - 1)), waterMessages.length - 1);
+      waterMsgEl.textContent = waterMessages[idx];
+    }
+  }, 500);
+</script>
+</body>
+</html>
